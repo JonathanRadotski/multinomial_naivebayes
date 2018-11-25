@@ -68,13 +68,13 @@ def train_test_split(dataset, ratio):
     return test_set, train_set
 
 
-def training(dataset, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 1):
+def training(dataset, test_data, data_dictionary, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 1):
     prob_spam_words = {}
     prob_not_spam_words = {}
     spam_words = {}
     not_spam_words = {}
-    num_of_word_in_spam = len(dict_spam_words)
-    num_of_word_in_not_spam = len(dict_not_spam_words)
+    num_of_word_in_spam = len(data_dictionary['1'])
+    num_of_word_in_not_spam = len(data_dictionary['0'])
 
     for word in dataset:
         if word not in dict_spam_words:
@@ -85,7 +85,7 @@ def training(dataset, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 
             if word in spam_words:
                 spam_words[word] += 1
             if word not in spam_words:
-                spam_words[word] = 0
+                spam_words[word] = 1
 
         if word not in dict_not_spam_words:
             not_spam_words[word] = 0
@@ -94,7 +94,23 @@ def training(dataset, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 
             if word in not_spam_words:
                 not_spam_words[word] += 1
             if word not in not_spam_words:
-                not_spam_words[word] = 0
+                not_spam_words[word] = 1
+
+    for word in test_data:
+        if word not in dict_spam_words:
+            spam_words[word] = 0
+        if word in dict_spam_words:
+            if word in spam_words:
+                spam_words[word] += 1
+            if word not in spam_words:
+                spam_words[word] = 1
+        if word not in dict_not_spam_words:
+            not_spam_words[word] = 0
+        if word in dict_not_spam_words:
+            if word in not_spam_words:
+                not_spam_words[word] += 1
+            if word not in not_spam_words:
+                not_spam_words[word] = 1
 
     for word in spam_words:
         prob_spam_words[word] = (spam_words[word] + alpha)/(num_of_word_in_spam + vocabulary)
@@ -113,10 +129,17 @@ def predict(test_data, dict_prob_spam, dict_prob_not_spam):
     not_spam_meter = 1
 
     for word in test_data:
+        print(word)
         if word in dict_prob_spam:
+            probability_spam.append(dict_prob_spam[word])
+        if word not in dict_prob_spam:
             probability_spam.append(dict_prob_spam[word])
         if word in dict_prob_not_spam:
             probability_not_spam.append(dict_prob_not_spam[word])
+        if word not in dict_prob_not_spam:
+            probability_not_spam.append(dict_prob_not_spam[word])
+
+    print(len(probability_spam))
 
     for value in probability_spam:
         spam_meter *= value
@@ -150,22 +173,21 @@ for i in range(len(df)):
 
 
 # test_data, train_data = train_test_split(dataset, 0.75)
-dataset, data_dictionary, vocab = split_text_train(data)
-dict_spam, dict_not_spam = count_class_freq(data_dictionary)
-prob_spam, prob_not_spam = training(dataset, dict_spam, dict_not_spam, vocab)
 
-comment = "Rihanna fucks me"
+
+comment = "EVER PLEASE"
 print(type(comment))
 test_data = comment.split()
 print(test_data)
 
+dataset, data_dictionary, vocab = split_text_train(data)
+dict_spam, dict_not_spam = count_class_freq(data_dictionary)
+prob_spam, prob_not_spam = training(dataset, test_data, data_dictionary, dict_spam, dict_not_spam, vocab)
 pred, val = predict(test_data, prob_spam, prob_not_spam)
 
 print(pred, val)
 
-# print(len(data_dictionary['1']), ':1    =    0:', len(data_dictionary['0']))
+print(len(dict_spam), ':1    =    0:', len(dict_not_spam))
 # print(vocab)
 # print(len(dataset))
-print(max(prob_spam))
-
-
+print(prob_not_spam)
