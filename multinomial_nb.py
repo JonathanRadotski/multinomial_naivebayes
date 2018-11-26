@@ -68,17 +68,16 @@ def train_test_split(dataset, ratio):
     return test_set, train_set
 
 
-def training(dataset, test_data, data_dictionary, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 1):
+def training(dataset, test_data, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 1):
     prob_spam_words = {}
     prob_not_spam_words = {}
     spam_words = {}
     not_spam_words = {}
-    num_of_word_in_spam = len(data_dictionary['1'])
-    num_of_word_in_not_spam = len(data_dictionary['0'])
+    num_of_word_in_spam = len(dict_spam)
+    num_of_word_in_not_spam = len(dict_not_spam)
 
     for word in dataset:
         if word not in dict_spam_words:
-            # print(word)
             spam_words[word] = 0
 
         if word in dict_spam_words:
@@ -97,6 +96,7 @@ def training(dataset, test_data, data_dictionary, dict_spam_words, dict_not_spam
                 not_spam_words[word] = 1
 
     for word in test_data:
+
         if word not in dict_spam_words:
             spam_words[word] = 0
         if word in dict_spam_words:
@@ -104,6 +104,7 @@ def training(dataset, test_data, data_dictionary, dict_spam_words, dict_not_spam
                 spam_words[word] += 1
             if word not in spam_words:
                 spam_words[word] = 1
+
         if word not in dict_not_spam_words:
             not_spam_words[word] = 0
         if word in dict_not_spam_words:
@@ -129,7 +130,6 @@ def predict(test_data, dict_prob_spam, dict_prob_not_spam):
     not_spam_meter = 1
 
     for word in test_data:
-        print(word)
         if word in dict_prob_spam:
             probability_spam.append(dict_prob_spam[word])
         if word not in dict_prob_spam:
@@ -163,7 +163,7 @@ def predict(test_data, dict_prob_spam, dict_prob_not_spam):
     return prediction, prediction_val
 
 
-df = pd.read_csv('YouTube-Spam-Collection-v1/Youtube04-Eminem.csv')
+df = pd.read_csv('YouTube-Spam-Collection-v1/Youtube03-LMFAO.csv')
 x = df.iloc[:, 3]
 y = df.iloc[:, 4]
 
@@ -175,19 +175,19 @@ for i in range(len(df)):
 # test_data, train_data = train_test_split(dataset, 0.75)
 
 
-comment = "EVER PLEASE"
+comment = "love like beautiful you so much"
 print(type(comment))
 test_data = comment.split()
 print(test_data)
 
 dataset, data_dictionary, vocab = split_text_train(data)
 dict_spam, dict_not_spam = count_class_freq(data_dictionary)
-prob_spam, prob_not_spam = training(dataset, test_data, data_dictionary, dict_spam, dict_not_spam, vocab)
+prob_spam, prob_not_spam = training(dataset, test_data, dict_spam, dict_not_spam, vocab)
 pred, val = predict(test_data, prob_spam, prob_not_spam)
 
 print(pred, val)
 
-print(len(dict_spam), ':1    =    0:', len(dict_not_spam))
+print(len(data_dictionary['1']), ':1    =    0:', len(data_dictionary['0']))
 # print(vocab)
 # print(len(dataset))
-print(prob_not_spam)
+# print(prob_not_spam)
