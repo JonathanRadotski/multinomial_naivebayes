@@ -148,10 +148,10 @@ for i in range(len(df)):
 dataset, data_dictionary, vocab, PSpam, PnotSpam, sumdata = split_text_train(data)
 dict_spam, dict_not_spam = count_class_freq(data_dictionary)
 
+forbidden_words = ['dan', 'atau', 'yang', 'ber', 'kan', 'mem', 'me', 'men', 'di', 'i']
 
 def execute_single_test():
     comment = "dasar cina"
-    forbidden_words = ['dan', 'atau', 'yang', 'ber', 'kan', 'mem', 'me', 'men', 'di', 'i']
     # print(type(comment))
     test_data = comment.split()
 
@@ -193,6 +193,11 @@ def execute_multiple_test():
     for i, row in enumerate(testing):
         split_data = row[0].split()
         label.append(row[1])
+
+        for c, word in enumerate(split_data):
+            if word in forbidden_words:
+                split_data.pop(c)
+
         prob_spam, prob_not_spam = training(dataset, split_data, data_dictionary, dict_spam, dict_not_spam, vocab)
         pred, val = predict(split_data, prob_spam, prob_not_spam, PSpam, PnotSpam, sumdata)
 
@@ -216,7 +221,6 @@ def execute_multiple_test():
     print('Precision is %s%s' %(prec, '%'))
     print('Recall is %s%s' %(rec, '%'))
     print('F-measure is %s%s' %(Fmeasure, '%'))
-
 
 
 execute_multiple_test()
