@@ -1,5 +1,4 @@
 from __future__ import division
-import random
 import pandas as pd
 
 
@@ -209,7 +208,7 @@ def execute_multiple_test():
             if pred[0] == 0:
                 FN += 1
 
-    Acc = ((TP + TN)/(TP + TN + FP + FN)* 100)
+    Acc = ((TP + TN)/(TP + TN + FP + FN) * 100)
     prec = (TP/(TP+FP)*100)
     rec = (TP/(TP+TN)*100)
     Fmeasure = ((2*TP)/(2*(TP*TN*FP))*100)
