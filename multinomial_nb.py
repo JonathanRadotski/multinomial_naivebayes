@@ -53,18 +53,6 @@ def count_class_freq(dictionary):
     return data_dict_spam, data_dict_not_spam
 
 
-def train_test_split(dataset, ratio):
-    train_size = int(len(dataset)*ratio)
-    train_set = []
-    test_set = dataset
-    print(type(dataset_copy))
-    while len(dataset_copy) < train_size:
-        randomized = random.randrange(len(dataset_copy))
-        train_set.append(dataset_copy.pop(randomized))
-
-    return test_set, train_set
-
-
 def training(dataset, test_data, data_dictionary, dict_spam_words, dict_not_spam_words, vocabulary, alpha = 1):
     prob_spam_words = {}
     prob_not_spam_words = {}
@@ -129,20 +117,21 @@ def predict(test_data, dict_prob_spam, dict_prob_not_spam, Pspam, PnotSpam, sumd
     for value in probability_spam:
         spam_meter *= value
     spam_meter = spam_meter * (PSpam/sumdata)
-    print('Spam meter:  %s' %(spam_meter))
+
+    # print('Spam meter:  %s' %(spam_meter))
 
     for value in probability_not_spam:
         not_spam_meter *= value
     not_spam_meter = not_spam_meter * (PnotSpam/sumdata)
 
-    print('Not Spam meter: %s' %(not_spam_meter))
+    # print('Not Spam meter: %s' %(not_spam_meter))
 
     if spam_meter > not_spam_meter:
-        prediction.append('SPAM')
+        prediction.append(1)
     if not_spam_meter > spam_meter:
-        prediction.append('NOT SPAM')
+        prediction.append(0)
     if spam_meter == not_spam_meter:
-        prediction.append('error')
+        prediction.append(None)
 
     prediction_val = max(spam_meter, not_spam_meter)
 
@@ -157,32 +146,78 @@ data = []
 for i in range(len(df)):
     data.append([x[i], y[i]])
 
-
-# test_data, train_data = train_test_split(dataset, 0.75)
-
-
-comment = "jual barang nih like komen dan subscribe ya"
-forbidden_words = ['dan', 'atau', 'yang', 'ber', 'kan', 'mem', 'me', 'men']
-# print(type(comment))
-test_data = comment.split()
-
-for count in range(len(test_data)):
-    for i, filter in enumerate(test_data):
-        if filter in forbidden_words:
-            test_data.pop(i)
-
-print(test_data)
-
 dataset, data_dictionary, vocab, PSpam, PnotSpam, sumdata = split_text_train(data)
 dict_spam, dict_not_spam = count_class_freq(data_dictionary)
-prob_spam, prob_not_spam = training(dataset, test_data, data_dictionary, dict_spam, dict_not_spam, vocab)
-pred, val = predict(test_data, prob_spam, prob_not_spam, PSpam, PnotSpam, sumdata)
-
-print(('\nPREDICTION:  %s \nprobability measure:  %s') %(pred, val))
 
 
-print(len(data_dictionary['1']), ':1    =    0:', len(data_dictionary['0']))
-# print(PSpam, PnotSpam, sumdata)
-# print(vocab)
-# print(len(dataset))
-# print(prob_not_spam)
+def execute_single_test():
+    comment = "dasar cina"
+    forbidden_words = ['dan', 'atau', 'yang', 'ber', 'kan', 'mem', 'me', 'men', 'di', 'i']
+    # print(type(comment))
+    test_data = comment.split()
+
+    for count in range(len(test_data)):
+        for i, filter in enumerate(test_data):
+            if filter in forbidden_words:
+                test_data.pop(i)
+
+    print(test_data)
+
+    prob_spam, prob_not_spam = training(dataset, test_data, data_dictionary, dict_spam, dict_not_spam, vocab)
+    pred, val = predict(test_data, prob_spam, prob_not_spam, PSpam, PnotSpam, sumdata)
+
+
+    print(('\nPREDICTION:  %s \nprobability measure:  %s') %(pred, val))
+
+
+    print(len(data_dictionary['1']), ':1   =    0:', len(data_dictionary['0']))
+    # print(PSpam, PnotSpam, sumdata)
+    # print(vocab)
+    # print(len(dataset))
+    # print(prob_not_spam)
+
+
+def execute_multiple_test():
+    dg = pd.read_csv('data_politik_test.csv')
+    x_test = dg.iloc[:, 0]
+    y_test = dg.iloc[:, 1]
+    label = []
+    TP = 0
+    TN = 0
+    FP = 0
+    FN = 0
+
+    testing = []
+    for i in range(len(dg)):
+        testing.append([x_test[i], y_test[i]])
+
+    for i, row in enumerate(testing):
+        split_data = row[0].split()
+        label.append(row[1])
+        prob_spam, prob_not_spam = training(dataset, split_data, data_dictionary, dict_spam, dict_not_spam, vocab)
+        pred, val = predict(split_data, prob_spam, prob_not_spam, PSpam, PnotSpam, sumdata)
+
+        if pred[0] == label[i]:
+            if pred[0] == 1:
+                TP += 1
+            if pred[0] == 0:
+                TN += 1
+
+        if pred[0] != label[i]:
+            if pred[0] == 1:
+                FP += 1
+            if pred[0] == 0:
+                FN += 1
+
+    Acc = ((TP + TN)/(TP + TN + FP + FN)* 100)
+    prec = (TP/(TP+FP)*100)
+    rec = (TP/(TP+TN)*100)
+    Fmeasure = ((2*TP)/(2*(TP*TN*FP))*100)
+    print('Accuracy is %s%s' %(Acc, '%'))
+    print('Precision is %s%s' %(prec, '%'))
+    print('Recall is %s%s' %(rec, '%'))
+    print('F-measure is %s%s' %(Fmeasure, '%'))
+
+
+
+execute_multiple_test()
