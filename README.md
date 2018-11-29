@@ -10,9 +10,13 @@ Why use Naive Bayes? It is simple and perform well in many real-world problems (
 
 Multinomial naive bayes is a naive bayes based algorithm which represent frequencies of an events happening. This algorithm predict labels based on how many times a feature have occured.
 
-![Naive Bayes Theorem](https://wikimedia.org/api/rest_v1/media/math/render/svg/52bd0ca5938da89d7f9bf388dc7edcbd546c118e)
+![Multinomial Naive Bayes Theorem](https://wikimedia.org/api/rest_v1/media/math/render/svg/52bd0ca5938da89d7f9bf388dc7edcbd546c118e)
 
 ### Pseudo Code
+
+First step is to split dataset into its own label. The main priorities is to group sentences for later process. Other priorities we need to do is calculate occurance of spam and not spam data, vocabulary, and total data. These elements is needed due to provide prior elements of naive bayes.
+
+![Prior](https://cdn-images-1.medium.com/max/1600/1*-PkUQ4n42T1YLaK-jXI9VQ.png)
 
 ```markdown
 # split_text_train(dataset):
@@ -27,8 +31,11 @@ Multinomial naive bayes is a naive bayes based algorithm which represent frequen
           vocabulary += 1
       sum data += 1
 ##    return splitted, data dictionary, occurance of spam, occurance of not spam, vocabulary, sum data
-    
-    
+```
+
+Second step is to provide words in each of the respective labels. These dictionaries provide information of each word that occured in each label. Why not do this process in previous method? Because we want to keep track of data without losing their track (Ex: each word from particular sentence)
+
+```markdown
 # count_class_freq(data dictionary):
 ##    for word in data dictionary[spam]:
 ##       if word not in word dictionary spam:
@@ -38,8 +45,17 @@ Multinomial naive bayes is a naive bayes based algorithm which represent frequen
 ##       if word not in word dictionary not spam:
             add to word dict not spam[not spam]
 ##     return word dict spam, word dict not spam
+```
+
+Training time!!! :D we need to train the algorithm so they can predict accurately. In this method we want to calculate ***number of word*** occured in each label. We want to calculate the likelihood of each word given spesific class.
+![Likelihood](https://cdn-images-1.medium.com/max/1600/1*179n7MYlMneiPvhhUizSIg.png)
+
+Wait... there is a problem. What if a word that we test doesnt occured in the training data? will it destroy the algorithm by giving 0 to probability values? Of course. Based on that problem, we need to prevent the problem by inserting ***smoothing*** . In this project we add 1 for each data to calculate their likelihoods (This method is called ***laplace smoothing*** ). By adding 1 to each data, the data with 0 occurance in the dataset will give probability value and provide likelihoods for future process. 
+
+![Likelihood with smoothing](https://cdn-images-1.medium.com/max/1600/1*PB2b5dB2rHffvx_g-wcSng.png)
 
 
+```markdown
 # training(dataset, test data, data dictionary, word dict spam, word dict not spam, vocabulary, alpha = 1):
   _alpha = laplace smoothing (prevents probabilities being 0)_
 
@@ -58,8 +74,15 @@ Multinomial naive bayes is a naive bayes based algorithm which represent frequen
         prob_not_spam_words[word] = (not spam words[word] + alpha)/(num of word in not spam + vocabulary)
 
 ##    return prob_spam_words, prob_not_spam_words
+```
 
+The last step is to predict the test set. We need to calculate combined probability value of each word that occured in the test set. From that, we multiply it by prior and divide it with combined probability value of each word that occured in the test set. But without dividing we get a derived value that can predict our test set being a spam set or a not spam set. Lastly, we need to calculate the max value between spam meter and not spam meter to predict which class our tes set belongs to.
 
+![predict Mnb 1](https://cdn-images-1.medium.com/max/1600/1*nSjjuW2SBNcGZ3cN61E4NQ.png)
+
+![predict Mnb 1](https://cdn-images-1.medium.com/max/1600/1*onKHO0N1AKcVoDyVnHE7CA.png)
+
+```markdown
 # predict(test data, prob_spam_words, prob_not_spam_words, occurance of spam, occurance of not spam, sum data):
 
 ##    for word in test data:
