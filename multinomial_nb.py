@@ -106,11 +106,10 @@ def predict(test_data, dict_prob_spam, dict_prob_not_spam, Pspam, PnotSpam, sumd
     for word in test_data:
         if word in dict_prob_spam:
             probability_spam.append(dict_prob_spam[word])
-        if word not in dict_prob_spam:
-            probability_spam.append(dict_prob_spam[word])
         if word in dict_prob_not_spam:
             probability_not_spam.append(dict_prob_not_spam[word])
-        if word not in dict_prob_not_spam:
+        else:
+            probability_spam.append(dict_prob_spam[word])
             probability_not_spam.append(dict_prob_not_spam[word])
 
     for value in probability_spam:
