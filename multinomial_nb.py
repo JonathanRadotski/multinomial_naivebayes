@@ -134,7 +134,7 @@ def predict(test_data, dict_prob_spam, dict_prob_not_spam, Pspam, PnotSpam, sumd
     return prediction, prediction_val, not_spam_meter, spam_meter
 
 
-df = pd.read_csv('data_politik.csv')
+df = pd.read_csv('data_politik.csv', encoding='latin-1')
 x = df.iloc[:, 0]
 y = df.iloc[:, 1]
 
