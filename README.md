@@ -86,8 +86,9 @@ The last step is to predict the test set. We need to calculate combined probabil
 # predict(test data, prob_spam_words, prob_not_spam_words, occurance of spam, occurance of not spam, sum data):
 
 ##    for word in test data:
-        check if word exist in word dict spam (yes = prob spam word[word] | else = prob spam word [word])
-        check if word exist in word dict not spam (yes = prob not spam word[word] | else = prob not spam word [word])
+        check if word exist in word dict spam (yes = prob spam word[word])
+        check if word exist in word dict not spam (yes = prob not spam word[word])
+        if word doesn't exist in both category then prob not spam word[word] and prob spam word[word]
 
 ##    for value in probability spam:
         spam meter = spam meter * value
